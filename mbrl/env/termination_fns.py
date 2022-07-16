@@ -93,3 +93,16 @@ def humanoid(act: torch.Tensor, next_obs: torch.Tensor):
 
     done = done[:, None]
     return done
+
+
+
+#######
+
+def car1D(act: torch.Tensor, next_obs: torch.Tensor) -> torch.Tensor:
+    assert len(next_obs.shape) == 2
+
+    z = next_obs[:, 0]
+    done = z == 1.0
+
+    done = done[:, None]
+    return done

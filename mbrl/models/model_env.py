@@ -134,8 +134,11 @@ class ModelEnv:
 #             )
 
             dones = self.termination_fn(actions, next_observs)
-            rewards = self.discriminator(model_state["obs"], actions, next_observs, dones) 
+    
+            logits = self.discriminator(model_state["obs"], actions, next_observs, dones) 
+            rewards=-F.logsigmoid(-logits)
             rewards = rewards.reshape(-1,1)
+
 
             if pred_terminals is not None:
                 raise NotImplementedError(

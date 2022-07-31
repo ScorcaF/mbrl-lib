@@ -36,12 +36,17 @@ class ModelEnv:
 
     def __init__(
         self,
+        discriminator,
+
         env: gym.Env,
         model: Model,
         termination_fn: mbrl.types.TermFnType,
         reward_fn: Optional[mbrl.types.RewardFnType] = None,
         generator: Optional[torch.Generator] = None,
-    ):
+    ):          
+        self.discriminator=discriminator
+        
+
         self.dynamics_model = model
         self.termination_fn = termination_fn
         self.reward_fn = reward_fn
@@ -121,12 +126,16 @@ class ModelEnv:
                 deterministic=not sample,
                 rng=self._rng,
             )
-            rewards = (
-                pred_rewards
-                if self.reward_fn is None
-                else self.reward_fn(actions, next_observs)
-            )
+            
+#             rewards = (
+#                 pred_rewards
+#                 if self.reward_fn is None
+#                 else self.reward_fn(actions, next_observs) # discriminator chiamato qui se si riesce a inserire D-net in reward_fn
+#             )
+
             dones = self.termination_fn(actions, next_observs)
+            rewards = self.discriminator(model_state["obs"], actions, next_observs, dones) 
+            rewards = rewards.reshape(-1,1)
 
             if pred_terminals is not None:
                 raise NotImplementedError(
